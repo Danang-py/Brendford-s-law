@@ -10,6 +10,7 @@
 import sys #allow to import command line argument
 import re     #to preceed regex
 import pandas as pd  #to read and proceed csv file 
+from pandas_ods_reader import read_ods #for those who use opensources softwares...
 from scipy.stats import chisquare #to get a p-value helping us to decide if the data follow brendford's law or not
 
 
@@ -56,16 +57,31 @@ def main():
 
     #check the type of file or the type of data
     if len(args) == 1:
-        ext = "\.(txt|csv)$"
+        ext = "\.(txt|csv|ods)$"
         extension = re.search(ext, args[0])
 
         if extension is None:
             pass
 
+        elif extension.group(0) == ".ods":
+            print('opening .csv file...')
+            content = read_ods(args[0], 1)
+            cols = content.columns
+            series = [content[c] for c in cols]
+            for s in series:
+                percents = percent(s)
+                print(percents)
+                check(percents)
+        
         elif extension.group(0) == ".csv":
             print('opening .csv file...')
-            content = pd.read_csv('filename', sep=',')
-            ##todo
+            content = pd.read_csv(args[0])
+            cols = content.columns
+            series = [content[c] for c in cols]
+            for s in series:
+                percents = percent(s)
+                print(percents)
+                check(percents)
 
         elif extension.group(0) == ".txt":
             print('opening .txt file...')
